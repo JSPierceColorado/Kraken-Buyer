@@ -77,21 +77,22 @@ def determine_tier_fraction(pct_down: float) -> Optional[float]:
     """
     pct_down is expected to be negative (e.g., -37.5 for 37.5% down).
     We use its absolute value to map tiers:
-        0%–25% down: 5% of funds
-        26%–50% down: 10% of funds
-        51%–75% down: 15% of funds
-        76%–99.9% down: 20% of funds
+
+        0%–25% down: 20% of funds
+        26%–50% down: 15% of funds
+        51%–75% down: 10% of funds
+        76%–99.9% down: 5% of funds
     """
     d = abs(pct_down)
 
     if 0 <= d <= 25:
-        return 0.05
-    elif 26 <= d <= 50:
-        return 0.10
-    elif 51 <= d <= 75:
-        return 0.15
-    elif 76 <= d <= 99.9:
         return 0.20
+    elif 26 <= d <= 50:
+        return 0.15
+    elif 51 <= d <= 75:
+        return 0.10
+    elif 76 <= d <= 99.9:
+        return 0.05
     else:
         # Outside your specified brackets
         return None
