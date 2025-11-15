@@ -98,11 +98,11 @@ def determine_tier_fraction(pct_down: float) -> Optional[float]:
 
 
 ICON_MULTIPLIERS = {
-    "💎": 1.0,
-    "💥": 0.9,
-    "🚀": 0.8,
-    "✨": 0.7,
-    "📊": 0.6,
+    "💎": 1.6,
+    "💥": 2.4,
+    "🚀": 3.2,
+    "✨": 1.6,
+    "📊": 2.8,
 }
 
 
