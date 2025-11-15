@@ -106,23 +106,23 @@ ICON_MULTIPLIERS = {
 }
 
 
-def sentiment_multiplier(sent_str: Optional[str]) -> float:
+def sentiment_multiplier(sent_str: Optional[str]) -> Optional[float]:
     """
-    Column P: if a positive numeric value exists, multiply by that.
-    If no entry or non-positive / invalid, multiplier = 0.1.
+    Column P: if a positive numeric value exists, use that as the multiplier.
+    If no entry, invalid, or non-positive, return None (meaning: do not buy).
     """
     if sent_str is None:
-        return 0.1
+        return None
 
     sent_str = str(sent_str).strip()
     if sent_str == "":
-        return 0.1
+        return None
 
     val = parse_float(sent_str)
     if val is not None and val > 0:
         return val
 
-    return 0.1
+    return None
 
 
 # ------------ Core Logic ------------ #
@@ -231,8 +231,11 @@ def main():
         # MA multiplier: I / B
         ma_ratio = long_ma / price
 
-        # Sentiment multiplier (P or 0.1 if blank/non-positive/invalid)
+        # Sentiment multiplier: if missing/invalid/non-positive -> skip buying
         sent_mult = sentiment_multiplier(sentiment_str)
+        if sent_mult is None:
+            print(f"Row {idx} ({symbol}): sentiment missing or non-positive, skipping buy.")
+            continue
 
         # If no funds left, stop processing
         if remaining_funds <= 0:
@@ -282,9 +285,11 @@ def main():
                 "amount": amount_base,
                 "order_id": order.get("id"),
             })
-            print(f"Row {idx} ({symbol}): order placed, id={order.get('id')}, "
-                  f"spent={order_notional:.4f} {BASE_CURRENCY}, "
-                  f"remaining_funds={remaining_funds:.4f} {BASE_CURRENCY}")
+            print(
+                f"Row {idx} ({symbol}): order placed, id={order.get('id')}, "
+                f"spent={order_notional:.4f} {BASE_CURRENCY}, "
+                f"remaining_funds={remaining_funds:.4f} {BASE_CURRENCY}"
+            )
         except ccxt.BaseError as e:
             print(f"Row {idx} ({symbol}): failed to place order: {e}")
             # On failure, do NOT reduce remaining_funds (since no funds were spent)
